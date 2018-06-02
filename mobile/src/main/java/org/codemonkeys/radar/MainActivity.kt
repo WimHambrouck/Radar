@@ -1,5 +1,6 @@
 package org.codemonkeys.radar
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.IntentSender
 import android.support.v7.app.AppCompatActivity
@@ -10,18 +11,36 @@ import com.google.android.gms.tasks.Task
 
 class MainActivity : AppCompatActivity() {
 
+    private var requestingLocationUpdates: Boolean = false
+    private lateinit var locationRequest: LocationRequest
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
 
-    fun createLocationRequest() {
-        val locationRequest = LocationRequest().apply {
+        locationRequest = LocationRequest().apply {
             interval = 10000
             fastestInterval = 5000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
+        createLocationRequest();
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (requestingLocationUpdates) startLocationUpdates()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        val fusedLocationClient: FusedLocationProviderClient
+        fusedLocationClient.requestLocationUpdates(locationRequest,
+                locationCallback,
+                null /* Looper */)
+    }
+
+    private fun createLocationRequest() {
         val builder = LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest)
 
@@ -32,6 +51,8 @@ class MainActivity : AppCompatActivity() {
             // All location settings are satisfied. The client can initialize
             // location requests here.
             // ...
+            requestingLocationUpdates = true
+            startLocationUpdates()
         }
 
         task.addOnFailureListener { exception ->
