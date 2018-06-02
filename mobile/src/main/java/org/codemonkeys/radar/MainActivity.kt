@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
@@ -14,6 +15,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }
+
+    private val REQUEST_CHECK_SETTINGS: Int = 42
 
     fun createLocationRequest() {
         val locationRequest = LocationRequest().apply {
@@ -41,7 +44,6 @@ class MainActivity : AppCompatActivity() {
                 try {
                     // Show the dialog by calling startResolutionForResult(),
                     // and check the result in onActivityResult().
-                    val REQUEST_CHECK_SETTINGS = 42
                     exception.startResolutionForResult(this@MainActivity,
                             REQUEST_CHECK_SETTINGS)
                 } catch (sendEx: IntentSender.SendIntentException) {
@@ -52,6 +54,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
+        if(requestCode == REQUEST_CHECK_SETTINGS)
+        {
+            Log.d("MainActivity", "Activity result van checkLocationSettings")
+            createLocationRequest()
+        }
     }
 }
